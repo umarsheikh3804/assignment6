@@ -2,6 +2,7 @@ package assignment6;
 
 import assignment6.Seat.SeatType;
 import assignment6.Seat.SeatLetter;
+import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,8 +12,10 @@ public class MovieTheater {
 
     private int printDelay;
     private SalesLogs log;
-    private Seat[][] seats;
-    private int rumbleNum, comfortNum, standardNum;
+    private List<Pair<Seat, Boolean>> seats;
+    private final int rumbleStartRow;
+    private final int comfortStartRow;
+    private final int standardStartRow;
     
     /**
      * Constructs a MovieTheater, where there are a set number of rows per seat type.
@@ -25,26 +28,24 @@ public class MovieTheater {
         printDelay = 10;
         log = new SalesLogs();
         // TODO: Finish implementing this constructor.
-        seats = new Seat[rumbleNum + comfortNum + standardNum][6];
-        int currRow = 0;
-        this.rumbleNum = rumbleNum;
-        this.comfortNum = comfortNum;
-        this.standardNum = standardNum;
-        initSeats(seats, this.rumbleNum, SeatType.RUMBLE, currRow);
-        initSeats(seats, this.comfortNum, SeatType.COMFORT, currRow);
-        initSeats(seats, this.standardNum, SeatType.STANDARD, currRow);
+        seats = new ArrayList<>();
+        rumbleStartRow = 0;
+        comfortStartRow = rumbleStartRow + rumbleNum;
+        standardStartRow = comfortStartRow + comfortNum;
+        initSeats(seats, rumbleNum, SeatType.RUMBLE, rumbleStartRow);
+        initSeats(seats, comfortNum, SeatType.COMFORT, comfortStartRow);
+        initSeats(seats, standardNum, SeatType.STANDARD, standardStartRow);
 
     }
 
-    private void initSeats(Seat[][] seats, int rows, SeatType type, int currRow) {
-        while (currRow < currRow + rows) {
-            seats[currRow][0] = new Seat(type, currRow, SeatLetter.A);
-            seats[currRow][1] = new Seat(type, currRow, SeatLetter.B);
-            seats[currRow][2] = new Seat(type, currRow, SeatLetter.C);
-            seats[currRow][3] = new Seat(type, currRow, SeatLetter.D);
-            seats[currRow][4] = new Seat(type, currRow, SeatLetter.E);
-            seats[currRow][5] = new Seat(type, currRow, SeatLetter.F);
-            currRow += 1;
+    private void initSeats(List<Pair<Seat, Boolean>> seats, int rows, SeatType type, int startRow) {
+        for (int i = 1; i < rows + 1; i++) {
+            seats.add(new Pair<>(new Seat(type, startRow + i, SeatLetter.A), false));
+            seats.add(new Pair<>(new Seat(type, startRow + i, SeatLetter.B), false));
+            seats.add(new Pair<>(new Seat(type, startRow + i, SeatLetter.C), false));
+            seats.add(new Pair<>(new Seat(type, startRow + i, SeatLetter.D), false));
+            seats.add(new Pair<>(new Seat(type, startRow + i, SeatLetter.E), false));
+            seats.add(new Pair<>(new Seat(type, startRow + i, SeatLetter.F), false));
         }
     }
 
@@ -58,27 +59,39 @@ public class MovieTheater {
         // TODO: Implement this method.
         List<Seat> sl = log.getSeatLog();
 //        the theater is full
-        if (sl.size() == seats.length * seats[0].length) {
+        if (sl.size() == seats.size()) {
             return null;
         }
 
+        Seat nextSeat;
 //        traverse seat log backwards to find most recent seat sold of type seatType
         for (int i = sl.size() - 1; i >= 0; i--) {
             if (sl.get(i).getSeatType() == seatType) {
 //                get most recent seat
                 Seat previous = sl.get(i);
                 int next = (previous.getRow() * 6) + (previous.getLetter().getIntValue() + 1);
-                return seats[next / 6][next % 6];
+                while (seats.get(next).getValue().equals(false)) {
+                    next += 1;
+                }
+//                found available seat
+                nextSeat = seats.get(next).getKey();
+//                mark as taken
+                seats.set(next, new Pair<>(nextSeat, true));
             }
         }
 //        no seat of type seatType sold -> return first seat of type seatType
-        if (seatType == SeatType.RUMBLE.) {
-            return seats[0][0];
+        if (seatType == SeatType.RUMBLE) {
+            nextSeat = seats.get(rumbleStartRow).getKey();
+            seats.set(0, new Pair<>(nextSeat, true));
         } else if (seatType == SeatType.COMFORT) {
-            return seats[rumbleNum][0];
+            nextSeat = seats.get(comfortStartRow * 6).getKey();
+            seats.set(comfortStartRow * 6, new Pair<>(nextSeat, true));
         } else {
-            return seats[rumbleNum + comfortNum][0];
+            nextSeat = seats.get(standardStartRow * 6).getKey();
+            seats.set(standardStartRow * 6, new Pair<>(nextSeat, true));
         }
+
+        return nextSeat;
     }
 
     /**
