@@ -12,10 +12,11 @@ public class MovieTheater {
 
     private int printDelay;
     private SalesLogs log;
-    private List<Pair<Seat, Boolean>> seats;
+    public List<Pair<Seat, Boolean>> seats;
     private final int rumbleStartRow;
     private final int comfortStartRow;
     private final int standardStartRow;
+
     
     /**
      * Constructs a MovieTheater, where there are a set number of rows per seat type.
@@ -57,6 +58,7 @@ public class MovieTheater {
      */
     public Seat getNextAvailableSeat(SeatType seatType) {
         // TODO: Implement this method.
+//        this cannot be happening simultaneously between threads
         List<Seat> sl = log.getSeatLog();
 //        the theater is full
         if (sl.size() == seats.size()) {
@@ -69,7 +71,10 @@ public class MovieTheater {
             if (sl.get(i).getSeatType() == seatType) {
 //                get most recent seat
                 Seat previous = sl.get(i);
-                int next = (previous.getRow() * 6) + (previous.getLetter().getIntValue() + 1);
+                if (previous.getSeatType() == SeatType.STANDARD && previous.getLetter() == SeatLetter.F)
+                    return null;
+//                need to account for case where there are no more standard seats, immediately return null
+                int next = ((previous.getRow()-1) * 6) + (previous.getLetter().getIntValue() + 1);
                 while (seats.get(next).getValue().equals(false)) {
                     next += 1;
                 }
@@ -90,8 +95,10 @@ public class MovieTheater {
             nextSeat = seats.get(standardStartRow * 6).getKey();
             seats.set(standardStartRow * 6, new Pair<>(nextSeat, true));
         }
-
+        System.out.println(nextSeat);
+        log.addSeat(nextSeat);
         return nextSeat;
+
     }
 
     /**
@@ -103,8 +110,22 @@ public class MovieTheater {
      */
     public Ticket printTicket(String boothId, Seat seat, int customer) {
         // TODO: Implement this method.
+        Object lock = new Object();
+        if (boothId == null || seat == null) {
+            return null;
+        }
+
         Ticket t = new Ticket(boothId, seat, customer);
-        System.out.println(t);
+        synchronized (lock) {
+            log.addTicket(t);
+            log.addSeat(seat);
+            System.out.println(t);
+        }
+
+        try {
+            Thread.sleep(printDelay);
+        } catch (InterruptedException ie) {}
+
         return t;
 
     }

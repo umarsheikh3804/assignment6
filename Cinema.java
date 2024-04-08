@@ -3,13 +3,15 @@ package assignment6;
 import assignment6.Seat.SeatType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
 
 public class Cinema {
 
     private MovieTheater movieTheater;
-    private Map<String, SeatType[]> booths;
+    private final Map<String, SeatType[]> booths;
 
     /**
      * Constructor to initilize the simulation based on starter parameters. 
@@ -33,28 +35,54 @@ public class Cinema {
      */
     public List<Thread> simulate() {
         List<Thread> threads = new ArrayList<>();
+        Object lock1 = new Object();
+//        Object lock2 = new Object();
+        final int[] customerID = {0};
         // TODO: Implement this method.
-        for (String s : booths.keySet()) {
+        for (final String s : booths.keySet()) {
             final SeatType[] customers = booths.get(s);
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    int current = 0;
-                    while (current < customers.length && movieTheater.) {
-                        if (movieTheater.getNextAvailableSeat(customers[current]) != null) {
-
+                    Seat next;
+                    for (int index = 0; index < customers.length && !MovieTheater.full; index++) {
+//                        want to avoid having 2 threads getNextAvailableSeat() at the same time
+                        synchronized (lock1) {
+                            next = movieTheater.getNextAvailableSeat(customers[index]);
+                            customerID[0]++;
                         }
+
+//                        can print tickets simultaneously
+//                        is this guaranteed to happen after the synchronized blocks
+                        movieTheater.printTicket(s, next, customerID[0]);
+
                     }
                 }
 
             });
             t.start();
+            threads.add(t);
         }
+
+        try {
+            for (Thread t : threads) {
+                t.join();
+            }
+        } catch (InterruptedException ie) {};
 
         return threads;
     }
 
     public static void main(String[] args) {
-        // For your testing purposes. We will not call this method.        
+        // For your testing purposes. We will not call this method.
+        Map < String , SeatType [] > booths = new HashMap< String , SeatType [] >();
+        booths . put ( "TO1" , new SeatType [] { SeatType . COMFORT , SeatType . COMFORT , SeatType . COMFORT });
+        booths . put ( "TO3" , new SeatType [] { SeatType . COMFORT , SeatType . STANDARD , SeatType . STANDARD });
+        booths . put ( "TO2" , new SeatType [] { SeatType . RUMBLE , SeatType . COMFORT ,
+                SeatType . STANDARD , SeatType . STANDARD });
+        booths . put ( "TO5" , new SeatType [] { SeatType . COMFORT , SeatType . COMFORT , SeatType . COMFORT });
+        booths . put ( "TO4" , new SeatType [] { SeatType . STANDARD , SeatType . STANDARD , SeatType . STANDARD });
+        Cinema client = new Cinema ( booths , new MovieTheater (1 , 1 , 1));
+        client . simulate ();
     }
 }
