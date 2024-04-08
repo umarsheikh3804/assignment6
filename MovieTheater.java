@@ -52,11 +52,24 @@ public class MovieTheater {
     }
 
     public void checkMovieTheater() {
+        int rumbles = 0;
+        int comforts = 0;
+        int standards = 0;
         for (SeatType t : seats.keySet()) {
             for (Seat s : seats.get(t)) {
-                System.out.println(s);
+                if (s.getSeatType() == SeatType.RUMBLE) {
+                    rumbles++;
+                } else if (s.getSeatType() == SeatType.COMFORT) {
+                    comforts++;
+                } else {
+                    standards++;
+                }
+//                System.out.println(s);
             }
         }
+        System.out.println("# of Rumble Seats: " + rumbles);
+        System.out.println("# of Comfort Seats: " + comforts);
+        System.out.println("# of Standard Seats: " + standards);
     }
 
     /**
@@ -78,41 +91,6 @@ public class MovieTheater {
             log.addSeat(nextSeat);
         }
         return nextSeat;
-
-
-//        Seat nextSeat;
-////        traverse seat log backwards to find most recent seat sold of type seatType
-//        for (int i = sl.size() - 1; i >= 0; i--) {
-//            if (sl.get(i).getSeatType() == seatType) {
-////                get most recent seat
-//                Seat previous = sl.get(i);
-//                if (previous.getSeatType() == SeatType.STANDARD && previous.getLetter() == SeatLetter.F)
-//                    return null;
-////                need to account for case where there are no more standard seats, immediately return null
-//                int next = ((previous.getRow()-1) * 6) + (previous.getLetter().getIntValue() + 1);
-//                while (seats.get(next).getValue().equals(false)) {
-//                    next += 1;
-//                }
-////                found available seat
-//                nextSeat = seats.get(next).getKey();
-////                mark as taken
-//                seats.set(next, new Pair<>(nextSeat, true));
-//            }
-//        }
-////        no seat of type seatType sold -> return first seat of type seatType
-//        if (seatType == SeatType.RUMBLE) {
-//            nextSeat = seats.get(rumbleStartRow).getKey();
-//            seats.set(0, new Pair<>(nextSeat, true));
-//        } else if (seatType == SeatType.COMFORT) {
-//            nextSeat = seats.get(comfortStartRow * 6).getKey();
-//            seats.set(comfortStartRow * 6, new Pair<>(nextSeat, true));
-//        } else {
-//            nextSeat = seats.get(standardStartRow * 6).getKey();
-//            seats.set(standardStartRow * 6, new Pair<>(nextSeat, true));
-//        }
-//        System.out.println(nextSeat);
-//        log.addSeat(nextSeat);
-//        return nextSeat;
 
     }
 
@@ -151,9 +129,11 @@ public class MovieTheater {
         }
 
         Ticket t = new Ticket(boothId, seat, customer);
+//        synchronize only on this part because the console and log (shared resources) are affected
+//        we don't want to synchronize the whole method because different threads should be able to call this method at the same time
         synchronized (lock) {
             log.addTicket(t);
-            log.addSeat(seat);
+//            log.addSeat(seat);
             System.out.println(t);
         }
 
