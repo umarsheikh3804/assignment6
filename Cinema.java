@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 
 public class Cinema {
@@ -36,8 +37,7 @@ public class Cinema {
     public List<Thread> simulate() {
         List<Thread> threads = new ArrayList<>();
         Object lock1 = new Object();
-//        Object lock2 = new Object();
-        final int[] customerID = {0};
+        AtomicInteger customerID = new AtomicInteger(0);
         // TODO: Implement this method.
         for (final String s : booths.keySet()) {
             final SeatType[] customers = booths.get(s);
@@ -45,16 +45,16 @@ public class Cinema {
                 @Override
                 public void run() {
                     Seat next;
-                    for (int index = 0; index < customers.length && !MovieTheater.full; index++) {
+                    for (int index = 0; index < customers.length && !movieTheater.theaterEmpty(); index++) {
 //                        want to avoid having 2 threads getNextAvailableSeat() at the same time
                         synchronized (lock1) {
                             next = movieTheater.getNextAvailableSeat(customers[index]);
-                            customerID[0]++;
+                            customerID.getAndIncrement();
                         }
 
 //                        can print tickets simultaneously
-//                        is this guaranteed to happen after the synchronized blocks
-                        movieTheater.printTicket(s, next, customerID[0]);
+//                        this is guaranteed to happen after the synchronized blocks
+                        movieTheater.printTicket(s, next, customerID.intValue());
 
                     }
                 }
@@ -84,5 +84,6 @@ public class Cinema {
         booths . put ( "TO4" , new SeatType [] { SeatType . STANDARD , SeatType . STANDARD , SeatType . STANDARD });
         Cinema client = new Cinema ( booths , new MovieTheater (1 , 1 , 1));
         client . simulate ();
+        client.movieTheater.checkMovieTheater();
     }
 }
