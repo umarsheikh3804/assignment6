@@ -2,7 +2,6 @@ package assignment6;
 
 import assignment6.Seat.SeatType;
 import assignment6.Seat.SeatLetter;
-import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,25 +50,26 @@ public class MovieTheater {
         seats.put(type, list);
     }
 
-    public void checkMovieTheater() {
-        int rumbles = 0;
-        int comforts = 0;
-        int standards = 0;
+    public int[] checkMovieTheater() {
+//        int rumbles = 0;
+//        int comforts = 0;
+//        int standards = 0;
+        int[] numberSeats = new int[3];
         for (SeatType t : seats.keySet()) {
             for (Seat s : seats.get(t)) {
                 if (s.getSeatType() == SeatType.RUMBLE) {
-                    rumbles++;
+                    numberSeats[0]++;
                 } else if (s.getSeatType() == SeatType.COMFORT) {
-                    comforts++;
+                    numberSeats[1]++;
                 } else {
-                    standards++;
+                    numberSeats[2]++;
                 }
-//                System.out.println(s);
             }
         }
-        System.out.println("# of Rumble Seats: " + rumbles);
-        System.out.println("# of Comfort Seats: " + comforts);
-        System.out.println("# of Standard Seats: " + standards);
+        return numberSeats;
+//        System.out.println("# of Rumble Seats: " + rumbles);
+//        System.out.println("# of Comfort Seats: " + comforts);
+//        System.out.println("# of Standard Seats: " + standards);
     }
 
     /**

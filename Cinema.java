@@ -75,6 +75,10 @@ public class Cinema {
         return threads;
     }
 
+    public int[] returnNumberSeats() {
+        return movieTheater.checkMovieTheater();
+    }
+
     public static void main(String[] args) {
         // For your testing purposes. We will not call this method.
         Map < String , SeatType [] > booths = new HashMap< String , SeatType [] >();
@@ -85,8 +89,6 @@ public class Cinema {
         booths . put ( "TO5" , new SeatType [] { SeatType . COMFORT , SeatType . COMFORT , SeatType . COMFORT });
         booths . put ( "TO4" , new SeatType [] { SeatType . STANDARD , SeatType . STANDARD , SeatType . STANDARD });
         Cinema client = new Cinema ( booths , new MovieTheater (1 , 1 , 1));
-//        client.movieTheater.checkMovieTheater();
         client . simulate ();
-//        client.movieTheater.checkMovieTheater();
     }
 }
