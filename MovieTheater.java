@@ -50,28 +50,6 @@ public class MovieTheater {
         seats.put(type, list);
     }
 
-    public int[] checkMovieTheater() {
-//        int rumbles = 0;
-//        int comforts = 0;
-//        int standards = 0;
-        int[] numberSeats = new int[3];
-        for (SeatType t : seats.keySet()) {
-            for (Seat s : seats.get(t)) {
-                if (s.getSeatType() == SeatType.RUMBLE) {
-                    numberSeats[0]++;
-                } else if (s.getSeatType() == SeatType.COMFORT) {
-                    numberSeats[1]++;
-                } else {
-                    numberSeats[2]++;
-                }
-            }
-        }
-        return numberSeats;
-//        System.out.println("# of Rumble Seats: " + rumbles);
-//        System.out.println("# of Comfort Seats: " + comforts);
-//        System.out.println("# of Standard Seats: " + standards);
-    }
-
     /**
      * Returns the next available seat not yet reserved for a given seat type.
      *
@@ -132,6 +110,7 @@ public class MovieTheater {
 //        synchronize only on this part because the console and log (shared resources) are affected
 //        we don't want to synchronize the whole method because different threads should be able to call this method at the same time
         synchronized (lock) {
+//            System.out.println(t == null);
             log.addTicket(t);
 //            log.addSeat(seat);
             System.out.println(t);

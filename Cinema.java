@@ -2,10 +2,7 @@ package assignment6;
 
 import assignment6.Seat.SeatType;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 
@@ -14,6 +11,7 @@ public class Cinema {
     private MovieTheater movieTheater;
     private final Map<String, SeatType[]> booths;
 
+//    maybe take out the following
     /**
      * Constructor to initilize the simulation based on starter parameters. 
      * 
@@ -38,6 +36,7 @@ public class Cinema {
         List<Thread> threads = new ArrayList<>();
         Object lock1 = new Object();
         AtomicInteger customerID = new AtomicInteger(1);
+
         // TODO: Implement this method.
         for (final String s : booths.keySet()) {
             final SeatType[] customers = booths.get(s);
@@ -73,10 +72,6 @@ public class Cinema {
         } catch (InterruptedException ie) {};
 
         return threads;
-    }
-
-    public int[] returnNumberSeats() {
-        return movieTheater.checkMovieTheater();
     }
 
     public static void main(String[] args) {
