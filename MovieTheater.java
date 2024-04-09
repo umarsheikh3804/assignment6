@@ -13,6 +13,7 @@ public class MovieTheater {
     private int printDelay;
     private SalesLogs log;
     private Map<SeatType, List<Seat>> seats;
+    private Object lock;
 
     
     /**
@@ -27,6 +28,7 @@ public class MovieTheater {
         log = new SalesLogs();
         // TODO: Finish implementing this constructor.
         seats = new HashMap<>();
+        lock = new Object();
         initSeats(seats, rumbleNum, SeatType.RUMBLE, 0);
         initSeats(seats, comfortNum, SeatType.COMFORT, rumbleNum);
         initSeats(seats, standardNum, SeatType.STANDARD, comfortNum + rumbleNum);
@@ -101,26 +103,23 @@ public class MovieTheater {
      */
     public Ticket printTicket(String boothId, Seat seat, int customer) {
         // TODO: Implement this method.
-        Object lock = new Object();
-        if (boothId == null || seat == null) {
+        if (seat == null) {
             return null;
         }
 
-        Ticket t = new Ticket(boothId, seat, customer);
+        Ticket ticket = new Ticket(boothId, seat, customer);
 //        synchronize only on this part because the console and log (shared resources) are affected
 //        we don't want to synchronize the whole method because different threads should be able to call this method at the same time
         synchronized (lock) {
-//            System.out.println(t == null);
-            log.addTicket(t);
-//            log.addSeat(seat);
-            System.out.println(t);
+            log.addTicket(ticket);
+            System.out.println(ticket);
         }
 
         try {
             Thread.sleep(printDelay);
         } catch (InterruptedException ie) {}
 
-        return t;
+        return ticket;
 
     }
     

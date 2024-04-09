@@ -35,7 +35,7 @@ public class Cinema {
     public List<Thread> simulate() {
         List<Thread> threads = new ArrayList<>();
         Object lock1 = new Object();
-        AtomicInteger customerID = new AtomicInteger(1);
+        final AtomicInteger customerID = new AtomicInteger(1);
 
         // TODO: Implement this method.
         for (final String s : booths.keySet()) {
@@ -44,19 +44,19 @@ public class Cinema {
                 @Override
                 public void run() {
                     Seat next;
-//                    repeat until no tickets left to be sold
-                    for (int index = 0; index < customers.length && !movieTheater.theaterEmpty(); index++) {
+//                    repeat while customers and theater is not empty
+                    for (int index = 0; (index < customers.length) && (!movieTheater.theaterEmpty()); index++) {
 //                        want to avoid having 2 threads call getNextAvailableSeat() at the same time
+                        int prev = 0;
                         synchronized (lock1) {
 //                            get next available seat
                             next = movieTheater.getNextAvailableSeat(customers[index]);
-                            customerID.getAndIncrement();
+                            prev = customerID.incrementAndGet();
                         }
 
 //                        can print tickets simultaneously
 //                        this is guaranteed to happen after the synchronized block
-                        movieTheater.printTicket(s, next, customerID.intValue() - 1);
-
+                        movieTheater.printTicket(s, next, prev);
                     }
                 }
 
